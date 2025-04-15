@@ -1,29 +1,46 @@
 from bs4 import BeautifulSoup
 
-# Assuming `soup` is your BeautifulSoup object
-# Add custom CSS link to HTML
+# Load the original HTML report
+with open('locust_report.html', 'r', encoding='utf-8') as file:
+    soup = BeautifulSoup(file, 'html.parser')
+
+# Add custom CSS link to HTML head
 css_link = soup.new_tag('link', rel='stylesheet', href='/tmp/styles/custom_style.css')
 soup.head.append(css_link)
 
-# Add summary section to the report
+# Create summary section
 summary_section = soup.new_tag('div', attrs={'class': 'summary-section'})
-summary_section.append('<h1>Load Test Summary</h1>')
 
-# Fetching key data like average response time, failures, and success rate
-response_time = soup.find(text="Average Response Time").find_next('td').text
-total_requests = soup.find(text="Total Requests").find_next('td').text
-failures = soup.find(text="Failures").find_next('td').text
-success_rate = (1 - float(failures) / float(total_requests)) * 100 if total_requests else 100
+# Create and append the header
+header = soup.new_tag('h1')
+header.string = 'Load Test Summary'
+summary_section.append(header)
 
-# Add data to the summary section
-summary_section.append(f'<p><strong>Average Response Time: </strong>{response_time} ms</p>')
-summary_section.append(f'<p><strong>Total Requests: </strong>{total_requests}</p>')
-summary_section.append(f'<p><strong>Total Failures: </strong>{failures}</p>')
-summary_section.append(f'<p><strong>Success Rate: </strong>{success_rate:.2f}%</p>')
+# Fetch key data
+response_time = soup.find(string="Average Response Time").find_next('td').text
+total_requests = soup.find(string="Total Requests").find_next('td').text
+failures = soup.find(string="Failures").find_next('td').text
+success_rate = (1 - float(failures) / float(total_requests)) * 100 if float(total_requests) else 100
 
-# Insert this summary into the report
+
+# Helper to create and append <p> tags
+def add_summary_line(label, value):
+    p = soup.new_tag('p')
+    strong = soup.new_tag('strong')
+    strong.string = f'{label}: '
+    p.append(strong)
+    p.append(str(value))
+    summary_section.append(p)
+
+
+add_summary_line('Average Response Time', f'{response_time} ms')
+add_summary_line('Total Requests', total_requests)
+add_summary_line('Total Failures', failures)
+add_summary_line('Success Rate', f'{success_rate:.2f}%')
+
+# Insert summary at the top of <body>
 soup.body.insert(0, summary_section)
 
-# Save the customized report
-with open('locust_report_customized.html', 'w') as file:
+# Save the updated report
+with open('locust_report_customized.html', 'w', encoding='utf-8') as file:
     file.write(str(soup))
