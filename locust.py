@@ -43,6 +43,24 @@ class FailureUser(HttpUser):
         print("POST /posts with valid data")
         self.client.post("/posts", json={"title": "Test", "body": "Test Body", "userId": 1})
 
+    @task
+    def update_post(self):
+        """ Update a post using PUT """
+        print("PUT /posts/1 with updated data")
+        self.client.put("/posts/1", json={"id": 1, "title": "Updated", "body": "Updated Body", "userId": 1})
+
+    @task
+    def patch_post(self):
+        """ Partially update a post using PATCH """
+        print("PATCH /posts/1 with partial data")
+        self.client.patch("/posts/1", json={"title": "Partially Updated"})
+
+    @task
+    def delete_post(self):
+        """ Delete a post using DELETE """
+        print("DELETE /posts/1")
+        self.client.delete("/posts/1")
+
     @task(failure_weight)
     def invalid_endpoint(self):
         """ Simulate 404 error by accessing an invalid endpoint """
@@ -97,3 +115,21 @@ class NormalUser(FailureUser):
         """ Create a new post with valid data """
         print("POST /posts (NormalUser, weight=10)")
         self.client.post("/posts", json={"title": "Test", "body": "Test Body", "userId": 1})
+
+    @task(5)
+    def update_post(self):
+        """ Update a post using PUT """
+        print("PUT /posts/1 (NormalUser)")
+        self.client.put("/posts/1", json={"id": 1, "title": "Updated", "body": "Updated Body", "userId": 1})
+
+    @task(5)
+    def patch_post(self):
+        """ Partially update a post using PATCH """
+        print("PATCH /posts/1 (NormalUser)")
+        self.client.patch("/posts/1", json={"title": "Partially Updated"})
+
+    @task(5)
+    def delete_post(self):
+        """ Delete a post using DELETE """
+        print("DELETE /posts/1 (NormalUser)")
+        self.client.delete("/posts/1")
