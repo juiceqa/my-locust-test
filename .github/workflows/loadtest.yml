@@ -30,7 +30,20 @@ jobs:
         run: |
           locust -f locust.py --headless --users 50 --spawn-rate 5 --host https://jsonplaceholder.typicode.com --run-time 2m --stop-timeout 60 --html locust_report.html
 
+      # Step 4.5: Verify that the report was generated
+      - name: Verify report existence
+        run: |
+          ls -lh
+          test -f locust_report.html && echo "✅ Report exists" || (echo "❌ Report missing" && exit 1)
+
       # Step 5: Run custom HTML report script
       - name: Run custom report script
         run: |
           python custom_report.py
+
+      # Step 6: Upload the customized report
+      - name: Upload Locust Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: locust-custom-report
+          path: locust_report_customized.html
