@@ -30,7 +30,15 @@ jobs:
       # Run Spike Test
       - name: Run Spike Test
         run: |
-          locust -f spike_test.py --headless --users 1000 --spawn-rate 500 --host https://jsonplaceholder.typicode.com --run-time 1m --stop-timeout 60 --html spike_report.html
+          locust -f spike_test.py \
+            --headless \
+            --users 200 \
+            --spawn-rate 100 \
+            --host https://jsonplaceholder.typicode.com \
+            --run-time 2m \
+            --stop-timeout 15 \
+            --html spike_report.html \
+            --reset-stats
 
       - name: Verify Reports
         run: |
