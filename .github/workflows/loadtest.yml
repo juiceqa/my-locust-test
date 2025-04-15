@@ -1,0 +1,26 @@
+name: Load Test with Locust
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install Locust
+        run: pip install locust
+
+      - name: Run Locust load test
+        run: |
+          locust -f locust.py --headless --users 50 --spawn-rate 5 --host https://jsonplaceholder.typicode.com
