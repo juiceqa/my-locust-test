@@ -32,4 +32,4 @@ jobs:
       # Step 5: Run custom HTML report script
       - name: Run custom report script
         run: |
-          python custom_report.py
+          python custom-report.py
