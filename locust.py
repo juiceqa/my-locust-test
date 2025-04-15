@@ -8,7 +8,6 @@ from locust import HttpUser, task, between
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
 class FailureUser(HttpUser):
     """
     Simulates both normal and failure scenarios for load testing.
@@ -17,15 +16,24 @@ class FailureUser(HttpUser):
     wait_time = between(1, 5)
     failure_weight = 1
 
-    def _log_and_check(self, response):
-        # Check for successful responses
-        if response.status_code >= 400:
-            logger.error(f"Unexpected error {response.status_code} from {response.request.method} {response.url}")
-            response.failure(f"Unexpected status code {response.status_code}")
-            raise Exception(f"Unexpected status code {response.status_code}")
+    def _log_and_check(self, response, expect_failure=False):
+        # Check for successful responses or expected failures
+        if expect_failure:
+            if response.status_code < 400:
+                logger.warning(f"Expected failure, got {response.status_code} from {response.request.method} {response.url}")
+                response.failure(f"Expected client/server error, got {response.status_code}")
+                raise Exception(f"Expected failure, got {response.status_code}")
+            else:
+                logger.info(f"Expected failure confirmed: {response.status_code} from {response.request.method} {response.url}")
+                response.success()
         else:
-            logger.info(f"Success {response.status_code} from {response.request.method} {response.url}")
-            response.success()
+            if response.status_code >= 400:
+                logger.error(f"Unexpected error {response.status_code} from {response.request.method} {response.url}")
+                response.failure(f"Unexpected status code {response.status_code}")
+                raise Exception(f"Unexpected status code {response.status_code}")
+            else:
+                logger.info(f"Success {response.status_code} from {response.request.method} {response.url}")
+                response.success()
 
     @task
     def get_posts(self):
@@ -44,9 +52,9 @@ class FailureUser(HttpUser):
 
     @task(failure_weight)
     def invalid_endpoint(self):
-        # Request a deliberately invalid endpoint that triggers a 500-series error
-        with self.client.get("/error/501", catch_response=True) as r:
-            self._log_and_check(r)
+        # Request a deliberately invalid endpoint that triggers a 404 error
+        with self.client.get("/invalid-endpoint", catch_response=True) as r:
+            self._log_and_check(r, expect_failure=True)
 
     @task(failure_weight)
     def create_post_with_invalid_data(self):
