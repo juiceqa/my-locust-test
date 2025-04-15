@@ -22,14 +22,15 @@ jobs:
       # Step 3: Install dependencies
       - name: Install dependencies
         run: |
-          pip install beautifulsoup4 locust
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir beautifulsoup4 locust
 
       # Step 4: Run the load test with locust
       - name: Run Load Test
         run: |
-          locust -f locust.py --headless --users 50 --spawn-rate 5 --host https://jsonplaceholder.typicode.com --run-time 2m --stop-timeout 60
+          locust -f locust.py --headless --users 50 --spawn-rate 5 --host https://jsonplaceholder.typicode.com --run-time 2m --stop-timeout 60 --html locust_report.html
 
       # Step 5: Run custom HTML report script
       - name: Run custom report script
         run: |
-          python custom-report.py
+          python custom_report.py
