@@ -1,6 +1,6 @@
-from locust import HttpUser, task, between
 import time
 import random
+from locust import HttpUser, task, between
 
 
 class FailureUser(HttpUser):
@@ -61,14 +61,6 @@ class FailureUser(HttpUser):
         """ Simulate a delay (timeout) by sleeping before sending a request """
         time.sleep(5)  # Simulating a delay of 5 seconds
         self.client.get("/posts")
-
-    @task(failure_weight)
-    def random_failure(self):
-        """ Simulate a random failure """
-        if random.choice([True, False]):  # Randomly simulate a failure
-            self.client.get("/posts")
-        else:
-            raise Exception("Simulated failure for testing purposes")  # Raise an exception to simulate failure
 
 
 class NormalUser(FailureUser):
