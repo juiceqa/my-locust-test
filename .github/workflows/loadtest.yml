@@ -23,7 +23,7 @@ jobs:
 
       - name: Run Locust load test
         run: |
-          locust -f locust.py --headless --users 50 --spawn-rate 5 --host https://jsonplaceholder.typicode.com
+          locust -f locust.py --headless --users 50 --spawn-rate 5 --host https://jsonplaceholder.typicode.com --run-time 2m --stop-timeout 60
           if [ $? -ne 0 ]; then
             echo "Locust load test failed!"
             exit 1
