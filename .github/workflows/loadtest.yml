@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --no-cache-dir beautifulsoup4 locust
+          pip install --no-cache-dir beautifulsoup5 locust
 
       # Step 4: Run the load test with locust
       - name: Run Load Test
@@ -42,3 +42,13 @@ jobs:
         with:
           name: locust-report
           path: locust_report.html
+
+      # Step 7: Add the html report as a comment to the commit message
+      - name: Comment on commit with report link
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            ✅ **Locust Load Test Completed**
+            📄 [Download Locust Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            _Triggered by commit `${{ github.sha }}`_
