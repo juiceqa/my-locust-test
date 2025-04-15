@@ -1,0 +1,26 @@
+/* custom_styles.css */
+.summary-section {
+    background-color: #f7f7f7;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.summary-section h1 {
+    color: #4CAF50;
+}
+
+.summary-section p {
+    font-size: 16px;
+    color: #333;
+}
+
+.success {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.failure {
+    color: #f44336;
+    font-weight: bold;
+}
