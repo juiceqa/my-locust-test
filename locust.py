@@ -2,7 +2,7 @@ import time
 import random
 import logging
 from locust import HttpUser, task, between
-from locust.exception import CatchResponseError
+
 
 # Configure logger for stdout visibility in GitHub Actions
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s - %(message)s')
@@ -22,7 +22,7 @@ class FailureUser(HttpUser):
             if response.status_code < 400:
                 logger.warning(f"Expected failure, got {response.status_code} from {response.request.method} {response.url}")
                 response.failure(f"Expected client/server error, got {response.status_code}")
-                raise CatchResponseError(f"Expected failure, got {response.status_code}")
+                raise Exception(f"Expected failure, got {response.status_code}")
             else:
                 logger.info(f"Expected failure confirmed: {response.status_code} from {response.request.method} {response.url}")
                 response.success()
@@ -30,7 +30,7 @@ class FailureUser(HttpUser):
             if response.status_code >= 400:
                 logger.error(f"Unexpected error {response.status_code} from {response.request.method} {response.url}")
                 response.failure(f"Unexpected status code {response.status_code}")
-                raise CatchResponseError(f"Unexpected status code {response.status_code}")
+                raise Exception(f"Unexpected status code {response.status_code}")
             else:
                 logger.info(f"Success {response.status_code} from {response.request.method} {response.url}")
                 response.success()
