@@ -1,4 +1,4 @@
-name: Load Test with Locust
+name: Run Load Test
 
 on:
   push:
@@ -6,25 +6,30 @@ on:
       - main
 
 jobs:
-  load-test:
+  loadtest:
     runs-on: ubuntu-latest
-
     steps:
+      # Step 1: Checkout code
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
+      # Step 2: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: '3.8'
 
-      - name: Install Locust
-        run: pip install locust
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install beautifulsoup4 locust
 
-      - name: Run Locust load test
+      # Step 4: Run the load test with locust
+      - name: Run Load Test
         run: |
           locust -f locust.py --headless --users 50 --spawn-rate 5 --host https://jsonplaceholder.typicode.com --run-time 2m --stop-timeout 60
-          if [ $? -ne 0 ]; then
-            echo "Locust load test failed!"
-            exit 1
-          fi
+
+      # Step 5: Run custom HTML report script
+      - name: Run custom report script
+        run: |
+          python custom_report.py
