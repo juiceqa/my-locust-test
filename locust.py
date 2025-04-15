@@ -2,7 +2,26 @@ from locust import HttpUser, task, between
 import time
 import random
 
+
 class FailureUser(HttpUser):
+    """
+    A Locust user class that simulates both normal and failure scenarios for load testing.
+
+    This class defines tasks that simulate standard API requests (such as fetching posts
+    or users) as well as various types of failures (e.g., invalid endpoints, delayed requests,
+    and simulated server errors). The goal is to test how the system handles normal traffic
+    alongside error conditions, such as timeouts or bad requests.
+
+    Attributes:
+        host (str): The base URL of the API to be tested.
+        wait_time (between): The simulated wait time between each request for this user.
+        failure_weight (int): The weight determining how often failure tasks should run.
+                              Lower values mean the failure tasks are less frequent than
+                              regular tasks.
+    Usage:
+        This class is intended for load testing scenarios where both normal and failure
+        conditions need to be simulated simultaneously.
+    """
     # Set the base URL for all requests
     host = "https://jsonplaceholder.typicode.com"
 
@@ -50,6 +69,7 @@ class FailureUser(HttpUser):
             self.client.get("/posts")
         else:
             raise Exception("Simulated failure for testing purposes")  # Raise an exception to simulate failure
+
 
 class NormalUser(FailureUser):
     """ Normal tasks that run continuously """
