@@ -19,18 +19,17 @@ class FailureUser(HttpUser):
     def _log_and_check(self, response, expect_failure=False):
         # Check for successful responses or expected failures
         if expect_failure:
+            # Explicitly mark as failure if we expect a failure
             if response.status_code < 400:
                 logger.warning(f"Expected failure, got {response.status_code} from {response.request.method} {response.url}")
                 response.failure(f"Expected client/server error, got {response.status_code}")
-                raise Exception(f"Expected failure, got {response.status_code}")
             else:
                 logger.info(f"Expected failure confirmed: {response.status_code} from {response.request.method} {response.url}")
-                response.success()
+                response.success()  # No need to do anything special for successful expected failures
         else:
             if response.status_code >= 400:
                 logger.error(f"Unexpected error {response.status_code} from {response.request.method} {response.url}")
                 response.failure(f"Unexpected status code {response.status_code}")
-                raise Exception(f"Unexpected status code {response.status_code}")
             else:
                 logger.info(f"Success {response.status_code} from {response.request.method} {response.url}")
                 response.success()
