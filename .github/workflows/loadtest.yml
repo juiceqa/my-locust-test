@@ -50,12 +50,27 @@ jobs:
           name: spike-test-report
           path: spike_report.html
 
-      - name: Comment on Commit with Report Links
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          body: |
-            ✅ **Locust Load & Spike Tests Completed**
+      - name: Install git-comment
+        run: |
+          curl -s https://api.github.com/repos/git-comment/git-comment/releases/latest \
+          | grep "browser_download_url.*linux_amd64" \
+          | cut -d : -f 2,3 \
+          | tr -d \" \
+          | wget -qi -
+          chmod +x git-comment_*.tar.gz
+          tar -xvzf git-comment_*.tar.gz
+          sudo mv git-comment /usr/local/bin
+
+      - name: Comment on commit with git-comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git-comment \
+            --repo ${{ github.repository }} \
+            --commit ${{ github.sha }} \
+            --message "✅ **Locust Load & Spike Tests Completed**
             📄 [Standard Load Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
             📈 [Spike Load Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            _Triggered by commit `${{ github.sha }}`_
+            _Triggered by commit \`${{ github.sha }}\`_" \
+            --author "GitHub Actions Bot" \
+            --token $GITHUB_TOKEN
